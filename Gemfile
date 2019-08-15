@@ -34,7 +34,6 @@ end
 group :test do
   gem 'capybara', '~> 3.28'
   gem 'webdrivers'
-  gem 'chromedriver-helper'
 end
 
 gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
