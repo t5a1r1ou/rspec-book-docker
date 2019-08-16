@@ -3,20 +3,50 @@
 require 'rails_helper'
 
 RSpec.feature 'Projects', type: :feature do
+  let(:user) { FactoryBot.create(:user) }
+  let(:project) { FactoryBot.create(:project, owner: user, name: 'Old Project')}
   scenario 'user create a new project' do
-    user = FactoryBot.create(:user)
     sign_in user
     visit root_path
 
     expect do
-      click_link 'New Project'
-      fill_in 'Name', with: 'Test Project'
-      fill_in 'Description', with: 'Trying out Capybara'
-      click_button 'Create Project'
-
-      expect(page).to have_content 'Project was successfully created'
-      expect(page).to have_content 'Test Project'
-      expect(page).to have_content "Owner: #{user.name}"
+      visit_build_page 'New Project'
+      fill_in_name_and_description
+      determine_project 'Create Project'
+      expect_build_done 'Project was successfully created.'
     end.to change(user.projects, :count).by(1)
+  end
+
+  scenario 'user update a project' do
+    sign_in user
+    visit project_path(id: project.id)
+
+    expect do
+      visit_build_page 'Edit'
+      fill_in_name_and_description
+      determine_project 'Update Project'
+      expect_build_done 'Project was successfully updated.'
+    end.to_not change(user.projects, :count)
+  end
+
+  def visit_build_page(name)
+    click_link name
+  end
+
+  def fill_in_name_and_description
+    fill_in 'Name', with: 'Feature Test Project'
+    fill_in 'Description', with: 'Feature Test Project Description'
+  end
+
+  def determine_project(name)
+    click_button name
+  end
+
+  def expect_build_done(name)
+    aggregate_failures do
+      expect(page).to have_content name
+      expect(page).to have_content 'Feature Test Project'
+      expect(page).to have_content "Owner: #{user.name}"
+    end
   end
 end
