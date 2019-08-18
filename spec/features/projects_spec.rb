@@ -19,7 +19,7 @@ RSpec.feature 'Projects', type: :feature do
 
   scenario 'user update a project' do
     sign_in user
-    visit project_path(id: project.id)
+    visit project_path(project)
 
     expect do
       visit_build_page 'Edit'
