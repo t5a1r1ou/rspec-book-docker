@@ -18,8 +18,6 @@ RSpec.feature 'Tasks', type: :feature do
     expect_incomplete_task 'Finish RSpec tutorial'
   end
 
-  private
-
   def go_to_project(name)
     visit root_path
     click_link name
@@ -36,14 +34,14 @@ RSpec.feature 'Tasks', type: :feature do
   def expect_complete_task(name)
     aggregate_failures do
       expect(page).to have_css 'label.completed', text: name
-      expect(task.reload).to be_complete
+      expect(task.reload).to be_completed
     end
   end
 
   def expect_incomplete_task(name)
     aggregate_failures do
       expect(page).to_not have_css 'label.completed', text: name
-      expect(task.reload).to_not be_complete
+      expect(task.reload).to_not be_completed
     end
   end
 end

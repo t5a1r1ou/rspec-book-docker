@@ -4,8 +4,8 @@ require 'rails_helper'
 
 RSpec.feature 'Projects', type: :feature do
   let(:user) { FactoryBot.create(:user) }
-  let(:project) { FactoryBot.create(:project, owner: user, name: 'Old Project')}
-  scenario 'user create a new project' do
+  let(:project) { FactoryBot.create(:project, owner: user, name: 'Old Project') }
+  scenario 'user creates a new project' do
     sign_in user
     visit root_path
 
@@ -27,6 +27,39 @@ RSpec.feature 'Projects', type: :feature do
       determine_project 'Update Project'
       expect_build_done 'Project was successfully updated.'
     end.to_not change(user.projects, :count)
+  end
+
+  scenario 'user completes a project' do
+    user = FactoryBot.create(:user)
+    project = FactoryBot.create(:project, owner: user)
+    login_as user, scope: :user
+
+    visit project_path(project)
+
+    expect(page).to_not have_content 'Completed'
+
+    click_button 'Complete'
+
+    expect(project.reload.completed?).to be true
+    expect(page).to have_content 'Congratulations, this project is complete!'
+    expect(page).to have_content 'Completed'
+    expect(page).to_not have_button 'Complete'
+  end
+
+  scenario 'toggle project status on the dashboard', :focus do
+    # ユーザーを準備する
+    user = FactoryBot.create(:user)
+    FactoryBot.create(:project, name: 'This is a Completed project.', completed: true, owner: user)
+    FactoryBot.create(:project, name: 'This is a Incompleted project.', completed: nil, owner: user)
+    # ユーザーはログインしている
+    login_as user
+    # ダッシュボードに完了済みのプロジェクトは表示されていない
+    visit root_path
+    aggregate_failures do
+      expect(page).to_not have_content 'This is a Completed project.'
+      # ダッシュボードに未完了のプロジェクトは表示されている
+      expect(page).to have_content 'This is a Incompleted project.'
+    end
   end
 
   def visit_build_page(name)
