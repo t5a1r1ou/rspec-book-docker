@@ -207,4 +207,36 @@ RSpec.describe ProjectsController, type: :controller do
       end
     end
   end
+
+  describe '#complete' do
+    context 'as an authenticated user' do
+      let(:project) { FactoryBot.create(:project, completed: nil) }
+
+      before do
+        sign_in project.owner
+      end
+
+      describe 'an unsuccessful completion', :focus do
+        before do
+          allow_any_instance_of(Project).to receive(:update_attributes).with(completed: true).and_return(false)
+        end
+
+        it 'redirects to the project page' do
+          patch :complete, params: { id: project.id }
+          expect(response).to redirect_to project_path(project)
+        end
+
+        it 'sets the flash' do
+          patch :complete, params: { id: project.id }
+          expect(flash[:alert]).to eq 'Unable to complete project.'
+        end
+
+        it "doesn't mark the project as completed" do
+          expect do
+            patch :complete, params: { id: project.id }
+          end.to_not change(project, :completed)
+        end
+      end
+    end
+  end
 end
