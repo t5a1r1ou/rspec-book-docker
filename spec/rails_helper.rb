@@ -30,18 +30,18 @@ RSpec.configure do |config|
   config.filter_rails_from_backtrace!
   config.include Devise::Test::ControllerHelpers, type: :controller
   config.include RequestSpecHelper, type: :request
-  config.include Devise::Test::IntegrationHelpers, type: :feature
+  config.include Devise::Test::IntegrationHelpers, type: :system
   config.include Paperclip::Shoulda::Matchers
   config.after(:suite) do
     FileUtils.rm_rf(Dir["#{Rails.root}/spec/test_uploads/"])
   end
-  # config.before(:each, type: :feature) do
-  #   driven_by :rack_test
-  # end
-  # config.before(:each, type: :feature, js: true) do
-  #   driven_by :selenium_remote
-  #   host! "http://#{Capybara.server_host}:#{Capybara.server_port}"
-  # end
+  config.before(:each, type: :system) do
+    driven_by :rack_test
+  end
+  config.before(:each, type: :system, js: true) do
+    driven_by :selenium_remote
+    host! "http://#{Capybara.server_host}:#{Capybara.server_port}"
+  end
 end
 
 Shoulda::Matchers.configure do |config|
