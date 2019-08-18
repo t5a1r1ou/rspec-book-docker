@@ -2,10 +2,10 @@
 
 require 'rails_helper'
 
-RSpec.feature 'Projects', type: :feature do
+RSpec.describe 'Projects', type: :system do
   let(:user) { FactoryBot.create(:user) }
   let(:project) { FactoryBot.create(:project, owner: user, name: 'Old Project') }
-  scenario 'user creates a new project' do
+  it 'user creates a new project' do
     sign_in user
     visit root_path
 
@@ -17,7 +17,7 @@ RSpec.feature 'Projects', type: :feature do
     end.to change(user.projects, :count).by(1)
   end
 
-  scenario 'user update a project' do
+  it 'user update a project' do
     sign_in user
     visit project_path(project)
 
@@ -29,7 +29,7 @@ RSpec.feature 'Projects', type: :feature do
     end.to_not change(user.projects, :count)
   end
 
-  scenario 'user completes a project' do
+  it 'user completes a project' do
     user = FactoryBot.create(:user)
     project = FactoryBot.create(:project, owner: user)
     login_as user, scope: :user
@@ -46,7 +46,7 @@ RSpec.feature 'Projects', type: :feature do
     expect(page).to_not have_button 'Complete'
   end
 
-  scenario 'toggle project status on the dashboard', :focus do
+  it 'toggle project status on the dashboard', :focus do
     # ユーザーを準備する
     user = FactoryBot.create(:user)
     FactoryBot.create(:project, name: 'This is a Completed project.', completed: true, owner: user)
