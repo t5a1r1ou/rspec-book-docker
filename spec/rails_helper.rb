@@ -5,10 +5,11 @@ ENV['RAILS_ENV'] ||= 'test'
 require File.expand_path('../config/environment', __dir__)
 abort('The Rails environment is running in production mode!') if Rails.env.production?
 require 'rspec/rails'
+require 'capybara/rspec'
+require 'paperclip/matchers'
 
 Dir[Rails.root.join('spec', 'support', '**', '*.rb')].each { |f| require f }
 
-require 'capybara/rspec'
 ActiveRecord::Migration.maintain_test_schema!
 
 Capybara.server_host = Socket.ip_address_list.detect(&:ipv4_private?).ip_address
@@ -30,6 +31,10 @@ RSpec.configure do |config|
   config.include Devise::Test::ControllerHelpers, type: :controller
   config.include RequestSpecHelper, type: :request
   config.include Devise::Test::IntegrationHelpers, type: :feature
+  config.include Paperclip::Shoulda::Matchers
+  config.after(:suite) do
+    FileUtils.rm_rf(Dir["#{Rails.root}/spec/test_uploads/"])
+  end
   # config.before(:each, type: :feature) do
   #   driven_by :rack_test
   # end
